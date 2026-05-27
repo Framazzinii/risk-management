@@ -1,7 +1,7 @@
 \documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[italian]{babel}
-\usepackage[margin=2.5cm]{geometry}
+\usepackage[margin=2.2cm]{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
@@ -9,7 +9,11 @@
 \usepackage{caption}
 \usepackage{hyperref}
 \usepackage{setspace}
-\onehalfspacing
+\setstretch{1.25}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\captionsetup{font=small,skip=4pt}
 
 \title{\textbf{Valore e Rischio di Portafoglio} \\ \large Analisi di 7 titoli azionari US e portafoglio equity}
 \author{Francesco Mazzini}
@@ -23,7 +27,9 @@
 %==========================================================================
 \section{Selezione titoli e rendimenti (Punto 1)}
 
-Sono stati selezionati 7 titoli azionari quotati su mercati statunitensi dal dataset Bloomberg fornito. I titoli, tutti denominati in USD, sono:
+L'obiettivo di questa prima fase è individuare un paniere di titoli azionari quotati negli Stati Uniti che presentino sufficiente eterogeneità settoriale, costruire le rispettive serie storiche dei prezzi e derivarne i rendimenti giornalieri. La scelta di titoli appartenenti a settori diversi è funzionale all'analisi di diversificazione condotta nel Punto~4.
+
+Dal dataset Bloomberg fornito sono stati selezionati sette titoli, tutti denominati in dollari statunitensi (verificato attraverso il suffisso del ticker Bloomberg: US, UN).
 
 \begin{table}[H]
 \centering
@@ -43,14 +49,7 @@ Sono stati selezionati 7 titoli azionari quotati su mercati statunitensi dal dat
 \caption{Titoli selezionati con relativo peso nel portafoglio del Punto~4.}
 \end{table}
 
-Il campione copre il periodo dal 19 luglio 2021 al 17 novembre 2025 (1131 osservazioni giornaliere di prezzo, 1130 rendimenti).
-
-I rendimenti sono calcolati come \textbf{log-rendimenti} giornalieri:
-\[
-g_t = \ln\!\left(\frac{P_t}{P_{t-1}}\right)
-\]
-
-In Figura~\ref{fig:prezzi} si riporta l'evoluzione dei prezzi normalizzati (base 100 alla prima data), che permette di confrontare le performance relative. In Figura~\ref{fig:rendimenti_log} sono mostrati i rendimenti log giornalieri per ciascun titolo.
+Il campione copre il periodo dal 19 luglio 2021 al 17 novembre 2025 (1131 osservazioni giornaliere di prezzo, 1130 rendimenti). Per l'analisi si utilizzano i log-rendimenti giornalieri $g_t = \ln(P_t / P_{t-1})$, preferiti ai rendimenti semplici perché godono della proprietà di additività temporale e semplificano la modellizzazione statistica. La Figura~\ref{fig:prezzi} confronta le performance relative attraverso la normalizzazione dei prezzi a base 100, mentre la Figura~\ref{fig:rendimenti_log} sovrappone i rendimenti giornalieri di tutti i titoli, evidenziando la diversa ampiezza delle oscillazioni e la presenza di cluster di volatilità comuni.
 
 \begin{figure}[H]
 \centering
@@ -62,11 +61,11 @@ In Figura~\ref{fig:prezzi} si riporta l'evoluzione dei prezzi normalizzati (base
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/p1_rendimenti_log.pdf}
-\caption{Rendimenti log giornalieri (\%) per ciascun titolo.}
+\caption{Log-rendimenti giornalieri (\%) dei 7 titoli sovrapposti.}
 \label{fig:rendimenti_log}
 \end{figure}
 
-Si nota una forte eterogeneità nelle performance: PANW US ha quasi triplicato il suo valore (+216\%), mentre DHR US e EW UN hanno registrato rendimenti negativi nel periodo ($-12\%$ e $-16\%$ rispettivamente). HIG US e VRTX US hanno più che raddoppiato (+118\% e +119\%).
+I dati mostrano una forte eterogeneità nelle performance: PANW~US ha quasi triplicato il suo valore (+216\%), mentre DHR~US e EW~UN hanno registrato rendimenti negativi ($-12\%$ e $-16\%$). HIG~US e VRTX~US hanno più che raddoppiato (+118\% e +119\%), confermando la diversificazione settoriale del paniere.
 
 
 %==========================================================================
@@ -74,7 +73,7 @@ Si nota una forte eterogeneità nelle performance: PANW US ha quasi triplicato i
 
 \subsection{Statistiche descrittive}
 
-Per ogni titolo si calcolano rendimento totale semplice, CAGR (tasso annuo composto), volatilità giornaliera e annualizzata, asimmetria e curtosi in eccesso.
+L'obiettivo è caratterizzare il profilo rischio-rendimento di ciascun titolo attraverso statistiche standard: rendimento di periodo, tasso annuo composto (CAGR), volatilità annualizzata, e indicatori di forma della distribuzione. Queste metriche consentono di valutare se i rendimenti si discostano dalla distribuzione normale, con implicazioni dirette sulla validità dei modelli parametrici utilizzati nel Punto~3.
 
 \begin{table}[H]
 \centering
@@ -96,7 +95,7 @@ VRTX US  & $+119.4\%$ & $+19.9\%$ & 28.4\% & $-2.07$ & 30.7 \\
 \label{tab:summary}
 \end{table}
 
-Il test di Jarque-Bera rifiuta l'ipotesi di normalità per tutti i titoli ($p < 10^{-100}$), confermando la presenza di code pesanti e asimmetria negativa tipiche dei rendimenti azionari. In particolare, EW UN presenta un eccesso di curtosi estremo (84.1) dovuto a un outlier di $-37.6\%$ il 25 luglio 2024.
+Il test di Jarque-Bera rifiuta l'ipotesi di normalità per tutti i titoli ($p < 10^{-100}$), confermando la presenza di code pesanti e asimmetria negativa tipiche dei rendimenti azionari. EW~UN presenta un eccesso di curtosi estremo (84.1), riconducibile a un outlier di $-37.6\%$ il 25 luglio 2024; anche PANW~US ($-33.5\%$, febbraio 2024) e VRTX~US ($-23.1\%$, agosto 2025) mostrano eventi di coda significativi. Questi outlier sono mantenuti nel campione in quanto rappresentano eventi di mercato reali (tipicamente shock da earnings o annunci regolatori).
 
 \begin{figure}[H]
 \centering
@@ -104,18 +103,11 @@ Il test di Jarque-Bera rifiuta l'ipotesi di normalità per tutti i titoli ($p < 
 \caption{Rendimenti totali e CAGR per titolo.}
 \end{figure}
 
-\subsection{Volatilità su diverse finestre}
+\subsection{Volatilità su diverse finestre temporali}
 
-La volatilità è calcolata come deviazione standard dei log-rendimenti giornalieri, annualizzata con il fattore $\sqrt{252}$ (giorni di trading/anno). Si utilizzano tre approcci:
+La volatilità, intesa come deviazione standard dei log-rendimenti giornalieri annualizzata con il fattore $\sqrt{252}$ (convenzione standard per 252 giorni di trading/anno), è stimata con tre metodologie complementari. La scelta di confrontare approcci diversi è motivata dalla necessità di valutare sia il livello medio di rischio sia la sua dinamica nel tempo.
 
-\begin{itemize}
-\item \textbf{Rolling}: media mobile della deviazione standard su finestre di 21 giorni ($\approx$1 mese), 63 giorni ($\approx$3 mesi) e 252 giorni ($\approx$1 anno).
-\item \textbf{EWMA RiskMetrics}: media mobile esponenziale con $\lambda = 0.94$ e inizializzazione su 30 giorni:
-\[
-\sigma^2_t = \lambda\,\sigma^2_{t-1} + (1-\lambda)\,r^2_{t-1}
-\]
-\item \textbf{GARCH(1,1)-Student-$t$}: modello a volatilità condizionata stimato via MLE, con distribuzione delle innovazioni a code pesanti (Student-$t$). Se la stima GARCH converge a una soluzione di frontiera ($\hat\beta \leq 10^{-4}$), si utilizza come fallback EGARCH(1,1,1)-$t$, poi GARCH-Normale, poi EGARCH-Normale.
-\end{itemize}
+La \textbf{volatilità rolling} è calcolata su finestre mobili di 21 giorni (circa 1 mese), 63 giorni (3 mesi) e 252 giorni (1 anno), annualizzata con $\sqrt{252}$. Il modello \textbf{EWMA RiskMetrics} assegna pesi esponenzialmente decrescenti attraverso la ricorsione $\sigma^2_t = \lambda\,\sigma^2_{t-1} + (1-\lambda)\,r^2_{t-1}$, con $\lambda = 0.94$ (standard RiskMetrics per dati giornalieri) e inizializzazione su 30 giorni. Infine, il \textbf{GARCH(1,1)} con innovazioni Student-$t$ è stimato via MLE; la distribuzione Student-$t$ è motivata dall'eccesso di curtosi della Tabella~\ref{tab:summary}. Nei casi in cui la stima converge a una soluzione di frontiera ($\hat\beta \leq 10^{-4}$), si ricorre a EGARCH(1,1,1)-$t$, poi a GARCH e EGARCH con innovazioni normali.
 
 \begin{figure}[H]
 \centering
@@ -125,77 +117,49 @@ La volatilità è calcolata come deviazione standard dei log-rendimenti giornali
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/p2_vol_pannelli.pdf}
+\includegraphics[width=0.92\textwidth]{figures/p2_vol_pannelli.pdf}
 \caption{Confronto vol.\ rolling 1Y, EWMA RiskMetrics e GARCH per ciascun titolo.}
 \label{fig:vol_pannelli}
 \end{figure}
 
-La Figura~\ref{fig:vol_pannelli} mostra che la volatilità non è costante nel tempo: tutti i titoli presentano cluster di alta volatilità (volatility clustering), ben catturati dai modelli EWMA e GARCH.
+La Figura~\ref{fig:vol_pannelli} conferma che la volatilità non è costante: i tre stimatori mostrano andamenti coerenti, con il rolling che fornisce il trend, l'EWMA che reagisce agli shock e il GARCH che ne cattura la persistenza. PANW~US presenta la volatilità più elevata e variabile (picchi oltre il 100\%), coerente con il settore cybersecurity.
 
 \subsection{Matrice di correlazione e test di significatività}
 
-La matrice di correlazione di Pearson è stimata sui log-rendimenti in campione listwise ($n = 1130$). Per ogni coppia $(i,j)$ si testa $H_0: \rho_{ij} = 0$ contro l'alternativa bilaterale, con la statistica:
-\[
-t_{ij} = \hat\rho_{ij}\sqrt{\frac{n-2}{1-\hat\rho_{ij}^2}} \;\sim\; t_{n-2}
-\]
+La matrice di correlazione di Pearson è stimata sui log-rendimenti in campione listwise ($n = 1130$). Per ogni coppia $(i,j)$ si verifica l'ipotesi nulla $H_0: \rho_{ij} = 0$ mediante la statistica $t_{ij} = \hat\rho_{ij}\sqrt{(n-2)/(1-\hat\rho_{ij}^2)}$, distribuita come $t_{n-2}$ sotto $H_0$. La soglia $\alpha = 5\%$ (test bilaterale) è la convenzione standard nel risk reporting.
 
-Al livello $\alpha = 5\%$ (due code), tutte le 21 coppie risultano significativamente diverse da zero. Le correlazioni sono tutte positive, con media $|\hat\rho| = 0.29$, massimo $\hat\rho = 0.46$ (NDAQ--TDY) e minimo $\hat\rho = 0.14$ (EW--VRTX).
+Al livello scelto, tutte le 21 coppie risultano significativamente correlate. Le correlazioni sono comprese tra 0.14 (EW-VRTX) e 0.46 (NDAQ-TDY), con media $|\hat\rho| = 0.29$. L'assenza di correlazioni negative è un dato rilevante per l'analisi di diversificazione del Punto~4.d: pur essendo i titoli settorialmente diversificati, il fattore di rischio di mercato comune ne impedisce la decorrelazione completa.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.55\textwidth]{figures/p2_heatmap_rho.pdf}
-\caption{Heatmap delle correlazioni di Pearson.}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{figures/p2_heatmap_pval.pdf}
-\caption{Significatività statistica: $-\log_{10}(p)$. Valori più alti indicano maggiore significatività.}
+\includegraphics[width=0.48\textwidth]{figures/p2_heatmap_rho.pdf}\hfill
+\includegraphics[width=0.48\textwidth]{figures/p2_heatmap_pval.pdf}
+\caption{Sinistra: correlazioni di Pearson. Destra: significatività ($-\log_{10}(p)$).}
 \end{figure}
 
 
 %==========================================================================
 \section{Value-at-Risk per singolo titolo (Punto 3)}
 
-Il VaR è stimato al livello $\alpha = 5\%$ (coda sinistra) con orizzonte $H = 1$ giorno sui log-rendimenti giornalieri. Il VaR è riportato come magnitudine positiva di perdita: $\text{VaR}_g = -Q_\alpha(g)$. Per la conversione in USD su una posizione long di $N = 100\,000$ \$:
-\[
-\text{VaR}_{\text{USD}} = N\left(1 - e^{-\text{VaR}_g}\right)
-\]
+L'obiettivo è quantificare la massima perdita attesa a un giorno su ciascun titolo con un livello di confidenza del 95\%, utilizzando tre metodologie complementari. Il confronto tra metodi consente di valutare la sensibilità delle stime alle ipotesi distribuzionali e la robustezza delle conclusioni.
 
-Vengono utilizzati tre metodi.
+Il livello $\alpha = 0.05$ e l'orizzonte $H = 1$ giorno sono definiti come parametri modificabili nel modello di calcolo, in modo da poter agevolmente estendere l'analisi ad altri livelli di confidenza o orizzonti temporali. Il VaR è espresso come magnitudine positiva della perdita sul log-rendimento ($\text{VaR}_g = -Q_\alpha(g)$), convertito in dollari su una posizione long di $N = 100\,000$ USD tramite $\text{VaR}_{\text{USD}} = N(1 - e^{-\text{VaR}_g})$.
 
 \subsection{VaR parametrico gaussiano}
 
-Si assume $g_t \sim N(\hat\mu, \hat\sigma^2)$ con $\hat\mu$ e $\hat\sigma$ stimati dal campione:
-\[
-\text{VaR}_g = -\left(\hat\mu + z_\alpha\,\hat\sigma\right), \qquad z_\alpha = \Phi^{-1}(\alpha) \approx -1.645
-\]
+Il metodo più semplice assume che i log-rendimenti seguano una distribuzione normale con media e varianza campionarie: $\text{VaR}_g = -(\hat\mu + z_\alpha\hat\sigma)$, dove $z_\alpha = \Phi^{-1}(0.05) \approx -1.645$. Il vantaggio è la trattabilità analitica e la rapidità di calcolo; il limite è l'ipotesi di normalità, che la Tabella~\ref{tab:summary} mostra violata per tutti i titoli.
 
-\subsection{VaR storico}
+\subsection{VaR con simulazione storica}
 
-Il quantile empirico al livello $\alpha$ sui rendimenti osservati: $\text{VaR}_g = -Q_\alpha^{\text{emp}}(g)$.
+Questo approccio non richiede ipotesi distribuzionali: il VaR è il quantile empirico al 5\% dei rendimenti osservati. Cattura implicitamente code pesanti, asimmetria e ogni altra caratteristica della distribuzione empirica, ma è limitato dalla dimensione del campione e dall'assunzione che il passato sia rappresentativo del futuro.
 
 \subsection{VaR Monte Carlo via Moto Browniano Geometrico}
 
-La simulazione è basata sul \textbf{Moto Browniano Geometrico} (GBM). Il prezzo segue:
-\[
-\frac{dS}{S} = \mu\,dt + \sigma\,dW
-\]
-da cui il log-rendimento discretizzato su un giorno ($dt = 1/252$ anni):
+La simulazione Monte Carlo è basata sul Moto Browniano Geometrico (GBM), in cui il prezzo segue il processo stocastico $dS/S = \mu\,dt + \sigma\,dW$. La discretizzazione su un giorno ($dt = 1/252$ anni) produce il log-rendimento simulato:
 \[
 g_t = \left(\mu_{\text{ann}} - \frac{\sigma_{\text{ann}}^2}{2}\right)dt + \sigma_{\text{ann}}\sqrt{dt}\;Z, \qquad Z \sim N(0,1)
 \]
-
-I parametri annualizzati sono stimati dai dati giornalieri:
-\begin{align}
-\hat\sigma_{\text{ann}} &= \hat\sigma_{\text{gg}} \cdot \sqrt{252} \\
-\hat\mu_{\text{ann}} &= \hat\mu_{\text{gg}} \cdot 252 + \frac{\hat\sigma_{\text{ann}}^2}{2}
-\end{align}
-dove $\hat\mu_{\text{gg}}$ è la media campionaria dei log-rendimenti e $\hat\sigma_{\text{gg}}$ la deviazione standard campionaria.
-
-Il drift giornaliero del log-rendimento è $(\hat\mu_{\text{ann}} - \hat\sigma_{\text{ann}}^2/2) \cdot dt = \hat\mu_{\text{gg}}$ e la componente stocastica è $\hat\sigma_{\text{ann}} \sqrt{dt} = \hat\sigma_{\text{gg}}$.
-
-Si generano $N = 50\,000$ simulazioni indipendenti. Il VaR è il quantile empirico al livello $\alpha$ dei rendimenti simulati.
+I parametri annualizzati sono ricavati dalle stime giornaliere: $\hat\sigma_{\text{ann}} = \hat\sigma_{\text{gg}} \cdot \sqrt{252}$ e $\hat\mu_{\text{ann}} = \hat\mu_{\text{gg}} \cdot 252 + \hat\sigma_{\text{ann}}^2/2$, dove il secondo termine è la correzione di Itô che riconduce dalla media dei log-rendimenti al drift del processo di prezzo. Si generano $N_{\text{sim}} = 50\,000$ traiettorie indipendenti (seed = 42 per riproducibilità) e il VaR è il quantile al 5\% dei rendimenti simulati.
 
 \begin{table}[H]
 \centering
@@ -216,16 +180,16 @@ VRTX US  & 2\,830 & 2\,326 & 2\,818 \\
 \label{tab:var}
 \end{table}
 
-Il VaR parametrico e il MC GBM producono risultati molto simili (differenza $<1\%$), come atteso dato che condividono l'ipotesi gaussiana. Lo storico è generalmente più basso, tranne per HIG US dove i tre metodi sono quasi allineati.
+Il VaR parametrico e il Monte Carlo GBM producono risultati quasi identici (differenza inferiore all'1\%), risultato atteso poiché entrambi condividono l'ipotesi gaussiana e gli stessi parametri stimati. La lieve discrepanza è attribuibile al rumore di campionamento della simulazione. Lo storico risulta sistematicamente inferiore per i titoli con distribuzione leptocurtica (EW~UN, PANW~US, VRTX~US), dove il quantile empirico del campione osservato si colloca più vicino alla media rispetto alla coda gaussiana teorica. Per HIG~US, il titolo con la distribuzione più vicina alla normale (curtosi in eccesso = 3.31), i tre metodi convergono.
 
 \subsection{Backtest out-of-sample}
 
-Il campione è diviso a metà: il VaR è stimato sulla prima parte (50\%) e le violazioni sono contate sulla seconda. Con $\alpha = 5\%$, ci si attende circa il 5\% di violazioni. I risultati mostrano che per la maggior parte dei titoli le violazioni sono inferiori al 5\%, indicando stime conservative.
+Per validare le stime, il campione è diviso a metà: il VaR è calibrato sulla prima parte e le violazioni (giorni in cui la perdita supera il VaR stimato) sono contate sulla seconda. Con $\alpha = 5\%$, ci si attende circa il 5\% di violazioni. I risultati (Figura~\ref{fig:var}) mostrano tassi di violazione compresi tra lo 0.7\% e il 5.1\%, indicando stime generalmente conservative, coerenti con l'utilizzo di parametri stimati in-sample che tendono a sovrastimare il rischio out-of-sample.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/p3_var_e_violazioni.pdf}
-\caption{VaR per titolo (USD) e backtest OOS: percentuale di violazioni.}
+\caption{VaR per titolo (USD) e backtest OOS: percentuale di violazioni (target 5\%).}
 \label{fig:var}
 \end{figure}
 
@@ -235,57 +199,35 @@ Il campione è diviso a metà: il VaR è stimato sulla prima parte (50\%) e le v
 
 \subsection{Valore del portafoglio a pesi costanti (4.a)}
 
-Si considera un investimento iniziale di $N = 100\,000$ USD, allocato secondo i pesi della consegna (Tabella~1), con il 10\% in liquidità (rendimento nullo, volatilità zero, correlazione zero con gli altri componenti). La strategia è \textbf{buy-and-hold} (pesi costanti, senza ribilanciamento giornaliero):
+Si simula un investimento di $N = 100\,000$ USD allocato secondo i pesi indicati nella consegna, con il 10\% destinato a liquidità (rendimento nullo, volatilità zero, correlazione zero con le azioni, come richiesto). La strategia adottata è buy-and-hold: l'allocazione iniziale rimane invariata per l'intero orizzonte di 3 anni, senza ribilanciamento giornaliero. Il valore del portafoglio è:
 \[
 V(t) = N\left(\sum_{i=1}^{7} w_i \frac{P_i(t)}{P_i(t_0)} + w_{\text{cash}}\right)
 \]
 
-La finestra è di 3 anni (dal 17 novembre 2022 al 17 novembre 2025, 783 osservazioni).
+La finestra va dal 17 novembre 2022 al 17 novembre 2025 (783 osservazioni). Il portafoglio raggiunge un valore finale di circa 141\,580 USD, corrispondente a un rendimento complessivo del +41.6\% (log: +34.8\%) in 3 anni, trainato principalmente dalla performance di PANW~US, VRTX~US e HIG~US che compensano ampiamente le perdite di DHR~US e EW~UN.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/p4a_portafoglio.pdf}
-\caption{Evoluzione del valore del portafoglio e rendimento cumulato.}
+\includegraphics[width=0.95\textwidth]{figures/p4a_portafoglio.pdf}
+\caption{Evoluzione del valore del portafoglio e rendimento cumulato da $t_0$.}
 \end{figure}
-
-Il portafoglio raggiunge un valore finale di circa 141\,580 USD, con un rendimento complessivo del $+41.6\%$ (log: $+34.8\%$) in 3 anni.
 
 \subsection{Rendimenti e volatilità del portafoglio (4.b)}
 
-I rendimenti giornalieri del portafoglio sono calcolati come $g_{p,t} = \ln(V_t / V_{t-1})$. La volatilità rolling è stimata su finestre di 21 giorni (1 mese) e annualizzata con $\sqrt{252}$.
-
-\begin{itemize}
-\item Rendimento log totale: $+34.8\%$
-\item Volatilità giornaliera campionaria: 0.96\%
-\item Volatilità annualizzata: 15.2\%
-\end{itemize}
+I log-rendimenti giornalieri del portafoglio, definiti come $g_{p,t} = \ln(V_t / V_{t-1})$, presentano una volatilità campionaria giornaliera dello 0.96\%, corrispondente a una volatilità annualizzata del 15.2\% (annualizzazione con $\sqrt{252}$). Il rendimento log totale sull'orizzonte di 3 anni è +34.8\%. La volatilità rolling su finestra di 21 giorni, visualizzata nella Figura~\ref{fig:p4b}, mostra oscillazioni contenute ma non trascurabili, anticipando l'analisi approfondita del Punto~4.e.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/p4b_rendimenti_vol.pdf}
-\caption{Log-rendimenti giornalieri e volatilità rolling annualizzata del portafoglio.}
+\caption{Log-rendimenti giornalieri e volatilità rolling annualizzata del portafoglio (finestra 21g).}
+\label{fig:p4b}
 \end{figure}
 
 \subsection{VaR del portafoglio (4.c)}
 
-Il VaR del portafoglio è stimato con tre metodi:
+Il VaR del portafoglio è stimato con tre approcci, tutti applicati con i medesimi parametri ($\alpha = 5\%$, $H = 1$ giorno, $N = 100\,000$ USD).
 
-\paragraph{Parametrico (varianza-covarianza).} Si stima la matrice di covarianza $\hat\Sigma$ sui log-rendimenti azionari nella finestra di 3 anni ($n = 783$). La liquidità non compare in $\hat\Sigma$ (vol = 0). Il rendimento e la volatilità del portafoglio sono:
-\[
-\hat\mu_p = \mathbf{w}'\hat{\boldsymbol\mu}, \qquad \hat\sigma_p = \sqrt{\mathbf{w}'\hat\Sigma\,\mathbf{w}}
-\]
-dove $\mathbf{w}$ sono i pesi azionari (che sommano al 90\%). Il VaR gaussiano è $\text{VaR}_g = -(\hat\mu_p + z_\alpha\hat\sigma_p)$.
-
-\paragraph{Monte Carlo GBM multivariato (Cholesky).} Ogni titolo segue un GBM con moti browniani correlati. Si fattorizza la matrice di correlazione $\hat R$ via Cholesky ($\hat R = LL'$), poi:
-\begin{enumerate}
-\item Si generano $Z \sim N(\mathbf{0}, I_7)$ (shock indipendenti)
-\item Si calcolano $\varepsilon = Z \cdot L'$ (shock correlati)
-\item Il log-rendimento di ogni titolo è $g_i = \text{drift}_i + \text{vol}_i \cdot \varepsilon_i$
-\item Il rendimento del portafoglio è $g_p = \sum_i w_i \cdot g_i$
-\end{enumerate}
-Si ripete per $N = 50\,000$ simulazioni e si prende il quantile al 5\%.
-
-\paragraph{Storico.} Quantile empirico su $g_{p,t} = \ln(V_t/V_{t-1})$ del portafoglio 4.a.
+Il metodo \textbf{parametrico} stima $\hat\Sigma$ sui log-rendimenti azionari ($n = 783$); la liquidità non compare in $\hat\Sigma$ (vol = 0) e i pesi sommano al 90\%. Si ha $\hat\sigma_p = \sqrt{\mathbf{w}'\hat\Sigma\,\mathbf{w}}$ e $\text{VaR}_g = -(\hat\mu_p + z_\alpha\hat\sigma_p)$. Il \textbf{Monte Carlo GBM multivariato} fattorizza $\hat R$ via Cholesky ($\hat R = LL'$), genera shock correlati $\varepsilon = Z \cdot L'$ con $Z \sim N(\mathbf{0}, I_7)$, e ottiene $g_i = \text{drift}_i + \text{vol}_i \cdot \varepsilon_i$ e $g_p = \sum_i w_i g_i$ su 50\,000 simulazioni. Il metodo \textbf{storico} calcola il quantile al 5\% sui $g_{p,t}$ osservati.
 
 \begin{table}[H]
 \centering
@@ -301,59 +243,33 @@ Storico su $g_p$ & 0.01347 & 1\,338 \\
 \caption{VaR portafoglio a 1 giorno, $\alpha = 5\%$, capitale 100\,000 USD.}
 \end{table}
 
-Il parametrico e il MC GBM differiscono dello 0.4\%, confermando la coerenza delle stime (la differenza è rumore di campionamento Monte Carlo). Lo storico è leggermente inferiore ($-8.8\%$), coerente con il fatto che la distribuzione empirica dei rendimenti del portafoglio non presenta code particolarmente pesanti nel periodo analizzato.
+Il parametrico e il Monte Carlo differiscono dello 0.4\%, confermando la coerenza interna del modello. Lo storico produce una stima inferiore di circa il 9\%, coerente con il fatto che la distribuzione empirica dei rendimenti del portafoglio, su questo campione, non mostra code particolarmente pesanti nella regione del quantile al 5\%.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/p4c_var_ptf.pdf}
-\caption{VaR del portafoglio (USD) e matrice di correlazione Pearson usata nel parametrico.}
+\caption{Confronto VaR del portafoglio (USD) e matrice di correlazione Pearson.}
 \end{figure}
 
 \subsection{Diversificazione e correlazioni (4.d)}
 
-Per valutare il beneficio della diversificazione, si confronta il VaR parametrico con la matrice $\hat\Sigma$ completa e con la matrice diagonale (stesse volatilità marginali, correlazioni nulle):
+Per valutare il grado di diversificazione del portafoglio si confrontano tre scenari di volatilità e VaR. Il primo utilizza la matrice di covarianza completa ($\hat\sigma_p = 0.92\%$ giornaliera). Il secondo ipotizza asset indipendenti mantenendo le stesse volatilità marginali ($\hat\sigma_p^{\text{diag}} = 0.67\%$). Il terzo considera il caso limite di correlazione perfetta tra tutti i titoli, dove $\sigma_p^{\text{undiv}} = \sum_i w_i\sigma_i$.
 
-\begin{itemize}
-\item $\hat\sigma_p$ con $\hat\Sigma$ completa: 0.92\% giornaliera
-\item $\hat\sigma_p$ con $\hat\Sigma$ diagonale ($\rho = 0$): 0.67\% giornaliera
-\item \textbf{Diversification ratio} $= 1 - \sigma_p / \sum_i w_i\sigma_i = 0.424$
-\end{itemize}
+Il rapporto di diversificazione, definito come $1 - \sigma_p / \sum_i w_i\sigma_i$, risulta pari a 0.424: la volatilità effettiva del portafoglio è il 42\% inferiore a quella del caso peggiore (correlazioni tutte unitarie), segno di un beneficio tangibile dalla composizione settoriale del paniere.
 
-Il rapporto di diversificazione del 42.4\% indica che la volatilità del portafoglio è significativamente inferiore a quella del caso peggiore (correlazione perfetta tra tutti i titoli), segno di un beneficio tangibile dalla diversificazione.
-
-Tuttavia, poiché le correlazioni sono tutte positive (media $|\hat\rho| = 0.23$), il VaR con la matrice completa è \textbf{superiore} a quello con asset indipendenti: 1\,467 USD contro 1\,057 USD (+410 USD, $+38.7\%$). Questo è atteso: correlazioni positive aumentano la varianza del portafoglio rispetto al caso di indipendenza.
-
-Il VaR storico (1\,338 USD) è inferiore al parametrico su questo campione, suggerendo che la distribuzione empirica dei rendimenti del portafoglio non presenta code particolarmente pesanti.
+Occorre tuttavia distinguere tra diversificazione rispetto al caso peggiore e impatto delle correlazioni rispetto all'indipendenza. Poiché tutte le correlazioni sono positive (media $|\hat\rho| = 0.23$), il VaR con la matrice completa (1\,467 USD) è superiore di 410 USD (+38.7\%) rispetto a quello con asset indipendenti (1\,057 USD). Questo risultato è atteso: correlazioni positive aumentano la varianza del portafoglio rispetto al caso di indipendenza perfetta. Il portafoglio è dunque ben diversificato rispetto al benchmark di correlazione unitaria, ma il rischio sistematico di mercato, che accomuna tutti i titoli statunitensi, ne limita il beneficio rispetto allo scenario di indipendenza.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/p4d_diversificazione.pdf}
-\caption{Impatto delle correlazioni sul VaR e matrice di correlazione.}
+\caption{Impatto delle correlazioni sul VaR e matrice di correlazione del portafoglio.}
 \end{figure}
 
 \subsection{Dinamica della volatilità (4.e)}
 
-Si analizza se la volatilità del portafoglio appare costante o presenta dinamiche significative nei 3 anni considerati. Si utilizzano diversi approcci:
+L'ultima questione è se la volatilità del portafoglio sia rimasta costante nei tre anni analizzati o abbia mostrato dinamiche significative. Si adottano tre approcci complementari: analisi grafica degli stimatori di volatilità, confronto per sotto-periodi e test statistici formali.
 
-\paragraph{Analisi grafica.} La volatilità rolling a 1 anno varia da un minimo del 13.4\% (dicembre 2023) a un massimo del 17.6\% (luglio 2025), con un rapporto max/min di 1.31. L'EWMA e il GARCH(1,1)-$t$ confermano la variabilità nel tempo.
-
-\paragraph{Sotto-periodi.} Dividendo il campione in 3 parti uguali:
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lccc}
-\toprule
-Periodo & Date & $n$ & $\sigma_{\text{ann}}$ \\
-\midrule
-P1 & nov 2022 -- nov 2023 & 260 & 13.9\% \\
-P2 & nov 2023 -- nov 2024 & 261 & 15.0\% \\
-P3 & nov 2024 -- nov 2025 & 261 & 16.5\% \\
-\bottomrule
-\end{tabular}
-\caption{Volatilità per sotto-periodo.}
-\end{table}
-
-\paragraph{Test statistici.}
+La volatilità rolling a 1 anno varia da un minimo del 13.4\% (dicembre 2023) a un massimo del 17.6\% (luglio 2025), con un rapporto max/min di 1.31. Dividendo il campione in tre sotto-periodi di uguale lunghezza (circa 260 osservazioni ciascuno), la volatilità annualizzata cresce progressivamente: 13.9\% nel primo periodo, 15.0\% nel secondo, 16.5\% nel terzo, coerentemente con l'aumento di incertezza nei mercati osservato nel 2025.
 
 \begin{table}[H]
 \centering
@@ -367,30 +283,25 @@ Bartlett (3 sotto-periodi) & 7.52 & 0.023 \\
 Levene (3 sotto-periodi) & 0.67 & 0.510 \\
 \bottomrule
 \end{tabular}
-\caption{Test sulla dinamica della volatilità.}
+\caption{Test sulla dinamica della volatilità del portafoglio.}
 \end{table}
 
-Il test di Engle ARCH-LM rifiuta fortemente $H_0$ (assenza di eteroschedasticità condizionata) con $p = 4.3 \times 10^{-4}$, confermando la presenza di \textbf{volatility clustering}. Il Ljung-Box sui rendimenti al quadrato conferma ($p = 0.012$). Il test di Bartlett rifiuta l'uguaglianza delle varianze tra sotto-periodi ($p = 0.023$), mentre il test di Levene (robusto alla non-normalità) non rifiuta ($p = 0.51$), suggerendo che la differenza tra sotto-periodi non è estrema.
+Il test di Engle ARCH-LM, che regredisce i residui al quadrato sui propri ritardi, rifiuta con forza l'ipotesi di assenza di eteroschedasticità condizionata ($p = 4.3 \times 10^{-4}$), confermando la presenza di volatility clustering. Il Ljung-Box sui rendimenti al quadrato conferma la persistenza dell'autocorrelazione nella varianza ($p = 0.012$ con 20 ritardi). Il Bartlett rifiuta l'uguaglianza delle varianze tra sotto-periodi ($p = 0.023$), sebbene questo test sia sensibile alla non-normalità; il Levene, più robusto, non rifiuta ($p = 0.51$), suggerendo che le differenze tra sotto-periodi, pur presenti, non sono estreme.
 
-Il modello GARCH(1,1)-Student-$t$ stimato sul portafoglio ha persistenza $\hat\alpha_1 + \hat\beta_1 = 0.855$, indicando che gli shock di volatilità sono marcatamente persistenti.
+Il modello GARCH(1,1)-Student-$t$ stimato sul portafoglio presenta una persistenza $\hat\alpha_1 + \hat\beta_1 = 0.855$, valore che indica come gli shock di volatilità si riassorbano lentamente. L'EGARCH(1,1,1)-$t$, stimato in parallelo, mostra un parametro di asimmetria $\hat\gamma_1 = -0.092$, indicativo di un lieve effetto leva (shock negativi aumentano la volatilità più di shock positivi di pari entità), coerente con la letteratura sui mercati azionari.
 
-\textbf{Conclusione}: la volatilità del portafoglio \emph{non appare costante}. Pur con variazioni moderate in ampiezza (ratio max/min = 1.31), l'evidenza statistica di eteroschedasticità condizionata è forte (ARCH-LM $p < 0.001$), e la persistenza GARCH conferma dinamiche significative nella volatilità.
+In conclusione, la volatilità del portafoglio non appare costante. Sebbene le variazioni in ampiezza siano moderate (ratio max/min = 1.31), l'evidenza di eteroschedasticità condizionata è statisticamente forte, e la persistenza GARCH conferma che le dinamiche di volatilità sono un fenomeno strutturale, non un artefatto campionario.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/p4e_vol_dinamica.pdf}
-\caption{Dinamica della volatilità del portafoglio: stime rolling, EWMA, GARCH e $|g_{p,t}|$.}
+\caption{Dinamica della volatilità del portafoglio: rolling 1Y, EWMA, GARCH e $|g_{p,t}|$.}
 \end{figure}
 
 
 %==========================================================================
 \section{Nota metodologica}
 
-\begin{itemize}
-\item I parametri $\alpha$ (livello di confidenza del VaR) e $H$ (orizzonte in giorni) sono definiti come variabili nella prima cella del notebook e utilizzati in tutte le formule, garantendo flessibilità del modello.
-\item Il numero di simulazioni Monte Carlo ($N = 50\,000$) e il seed ($= 42$) sono anch'essi parametri modificabili.
-\item I 252 giorni di trading annui sono usati per l'annualizzazione della volatilità.
-\item La liquidità è trattata come asset a rendimento nullo, coerentemente con la consegna.
-\end{itemize}
+Il modello è progettato per garantire flessibilità: tutti i parametri chiave ($\alpha$, orizzonte $H$, numero di simulazioni MC, seed, soglia di significatività per le correlazioni, frazione di campione per il backtest) sono definiti come variabili modificabili nella prima cella del notebook. L'annualizzazione usa 252 giorni di trading; la liquidità è trattata come asset a rendimento nullo; la conversione del VaR in USD utilizza la formula esatta $N(1-e^{-\text{VaR}_g})$.
 
 \end{document}

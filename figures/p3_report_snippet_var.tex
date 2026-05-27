@@ -1,0 +1,14 @@
+% --- Generato: VaR punto 3 ---
+
+\subsection*{Value-at-Risk (Punto 3)}
+Si stima il VaR al livello $\alpha=0.05$ (coda sinistra) sui log-rendimenti giornalieri
+$g_t=\ln(P_t/P_{t-1})$, con orizzonte $H=1$ giorno/i.
+Il VaR e' riportato come magnitudine positiva di perdita: $\mathrm{VaR}_g=-Q_\alpha(g^{(H)})$,
+dove $g^{(H)}$ e' il log-rendimento su $H$ giorni (per $H>1$: somma di $H$ incrementi consecutivi nello storico; nel parametrico/Monte Carlo gaussiano si assume i.i.d.\ con varianza scalata per $\sqrt{H}$ nel termine gaussiano).
+Per una posizione long di nominale $M=100,000$ USD sul singolo titolo,
+la perdita in valore semplice al quantile si ottiene da $\mathrm{VaR}_g$ con
+$\mathrm{VaR}_{\mathrm{USD}}\approx M\bigl(1-\mathrm{e}^{-\mathrm{VaR}_g}\bigr)$
+(per $|\mathrm{VaR}_g|\ll 1$: $\mathrm{VaR}_{\mathrm{USD}}\approx M\,\mathrm{VaR}_g$).
+\textbf{Parametrico}: $Q_\alpha$ da normale con $\hat\mu,\hat\sigma$ campionari sui $g_t$.
+\textbf{Storico}: quantile empirico (\texttt{linear}).
+\textbf{Monte Carlo}: $N=50000$ simulazioni gaussiane (\texttt{seed=42}).

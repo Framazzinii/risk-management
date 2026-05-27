@@ -1,0 +1,18 @@
+% --- Generato da untitled16.py (Punto 2, notazione 1D) ---
+
+\subsection*{Notazione $1$D (frequenza giornaliera, non finestra $1$ giorno)}
+Nel Punto~2 i rendimenti sono \emph{log-rendimenti giornalieri}
+\[
+  g_t = \ln\!\left(\frac{P_t}{P_{t-1}}\right),
+\]
+con $P_t$ prezzo in USD e passo temporale tra osservazioni consecutive pari a un giorno di mercato.
+
+Con ``$1$D'' si intende la \emph{frequenza} di campionamento (giornaliera), \emph{non} una finestra mobile di ampiezza un giorno (insufficiente per una volatilità significativa). La volatilità alla giornata è la deviazione standard dei $g_t$,
+\[
+  \sigma_{\mathrm{giorno}} = \widehat{\mathrm{st.dev.}}(g_t).
+\]
+L'annualizzazione (convenzione $H=252$ giorni di negoziazione) è
+\[
+  \sigma_{\mathrm{ann}} = \sigma_{\mathrm{giorno}}\,\sqrt{252}.
+\]
+Le volatilità su orizzonti tipo $1$M o $1$Y si ottengono invece applicando la stessa annualizzazione a deviazioni standard di $g_t$ stimate su \emph{finestre mobili} di lunghezza in giorni (es.\ $21$, $252$).

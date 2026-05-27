@@ -1,0 +1,16 @@
+,valore
+mean_rho_pairs,0.22921616482475904
+mean_abs_rho_pairs,0.22921616482475904
+max_rho_pairs,0.40933388618327
+min_rho_pairs,0.09289194848409266
+sigma_p_daily_full_cov,0.009215058234957435
+sigma_p_daily_diag_cov,0.006693382625890949
+sigma_p_daily_sum_wi_sigmai,0.015991254438599924
+vol_diversification_ratio_1_minus_sigp_over_undiv,0.42374388011024366
+var_usd_parametric_sigma,1467.0073806522632
+var_usd_parametric_diag_rho0,1057.4647272860616
+var_usd_historical_gp,1338.2891941669307
+var_usd_ref_sum_w_marginal_p3,2659.054364351642
+var_usd_benefit_corr_param_minus_indep,-409.54265336620165
+var_usd_benefit_corr_pct,-38.72872946006204
+n_sig_pairs_p05,21.0
